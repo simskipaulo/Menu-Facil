@@ -5,12 +5,9 @@ import { lazy, Suspense } from "react";
 const LoginPage = lazy(() => import("./pages/auth/LoginPage"));
 const MenuPage = lazy(() => import("./pages/public/MenuPage"));
 const CategoriesPage = lazy(() => import("./pages/admin/CategoriesPage"));
-const TagsPage = lazy(() => import("./pages/admin/TagsPage"));
 const QRCodePage = lazy(() => import("./pages/admin/QRCodePage"));
 const MenuItemsPage = lazy(() => import("./pages/admin/MenuItemsPage"));
-const RestaurantsPage = lazy(
-  () => import("./pages/admin/super/RestaurantsPage")
-);
+const RestaurantsPage = lazy(() => import("./pages/admin/super/RestaurantsPage"));
 
 const qc = new QueryClient();
 
@@ -31,7 +28,6 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/menu/:slug" element={<MenuPage />} />
             <Route path="/admin/categories" element={<CategoriesPage />} />
-            <Route path="/admin/tags" element={<TagsPage />} />
             <Route path="/admin/qrcode" element={<QRCodePage />} />
             <Route path="/admin/menu-items" element={<MenuItemsPage />} />
             <Route path="/admin/restaurants" element={<RestaurantsPage />} />
