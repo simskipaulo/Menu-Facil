@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     secret_key: str
     access_token_expire_minutes: int = 10080
     allowed_origins: str = "http://localhost:5173"
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
 
     @property
     def origins_list(self) -> list[str]:

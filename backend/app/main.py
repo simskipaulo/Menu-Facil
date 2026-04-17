@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import auth, tenants, categories, tags, menu_items, public
+from app.routers import auth, tenants, categories, tags, menu_items, public, upload
 
 app = FastAPI(title="Menu Fácil API", version="1.0.0")
 
@@ -19,6 +19,7 @@ app.include_router(categories.router)
 app.include_router(tags.router)
 app.include_router(menu_items.router)
 app.include_router(public.router)
+app.include_router(upload.router)
 
 
 @app.get("/health")

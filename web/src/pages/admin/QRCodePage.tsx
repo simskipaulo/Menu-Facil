@@ -11,18 +11,14 @@ function ConfirmModal({ message, onConfirm, onCancel }: { message: string; onCon
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
         <div className="text-center mb-5">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 mb-3">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-warning-50 mb-3">
             <span className="text-2xl">⚠️</span>
           </div>
-          <p className="text-gray-700 text-sm leading-relaxed">{message}</p>
+          <p className="text-neutral-700 text-sm leading-relaxed">{message}</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={onCancel}
-            className="flex-1 border border-gray-200 text-gray-600 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors">
-            Cancelar
-          </button>
-          <button onClick={onConfirm}
-            className="flex-1 bg-red-500 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-red-600 transition-colors">
+          <button onClick={onCancel} className="btn-ghost flex-1">Cancelar</button>
+          <button onClick={onConfirm} className="flex-1 bg-danger-500 text-white rounded-xl py-2.5 text-sm font-semibold hover:bg-danger-600 transition-colors">
             Confirmar
           </button>
         </div>
@@ -78,61 +74,70 @@ export default function QRCodePage() {
       )}
 
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-blue-900">QR Code do Cardápio</h2>
-        <p className="text-blue-500 text-sm mt-1">Clientes escaneiam para acessar o cardápio digital</p>
+        <h2 className="page-title">QR Code do Cardápio</h2>
+        <p className="text-neutral-500 text-sm mt-0.5">Clientes escaneiam para acessar o cardápio digital</p>
       </div>
 
-      {isLoading && (
-        <div className="bg-white/70 rounded-2xl p-8 text-center border border-blue-100">
-          <p className="text-blue-400 text-sm">Carregando...</p>
-        </div>
-      )}
+      <div className="max-w-md">
+        {isLoading && (
+          <div className="card p-8 text-center">
+            <p className="text-neutral-400 text-sm">Carregando...</p>
+          </div>
+        )}
 
-      {!isLoading && hasQR && (
-        <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-6">
-          <div className="flex flex-col items-center gap-4">
-            <div className="p-4 rounded-2xl border-2 border-blue-100 bg-blue-50">
-              <img src={`data:image/png;base64,${qrData.qr_base64}`} alt="QR Code" className="w-52 h-52" />
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-blue-400 font-mono bg-blue-50 px-3 py-1.5 rounded-lg">{qrData.menu_url}</p>
-            </div>
-            <div className="flex gap-3 w-full max-w-xs">
-              <a href={`data:image/png;base64,${qrData.qr_base64}`} download="qrcode-cardapio.png"
-                className="flex-1 bg-blue-600 text-white text-center rounded-xl py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Download
-              </a>
-              <button onClick={() => setConfirm("regenerate")}
-                className="flex-1 border border-blue-200 text-blue-600 rounded-xl py-2.5 text-sm font-semibold hover:bg-blue-50 transition-colors">
-                Regenerar
-              </button>
-              <button onClick={() => setConfirm("delete")}
-                className="px-4 border border-red-200 text-red-500 rounded-xl py-2.5 text-sm font-semibold hover:bg-red-50 transition-colors">
-                ✕
-              </button>
+        {!isLoading && hasQR && (
+          <div className="card p-8">
+            <div className="flex flex-col items-center gap-6">
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-brand-50 to-brand-100 border border-brand-200">
+                <img src={`data:image/png;base64,${qrData.qr_base64}`} alt="QR Code" className="w-56 h-56 rounded-xl" />
+              </div>
+
+              <div className="w-full">
+                <p className="field-label text-center">Link do Cardápio</p>
+                <div className="bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-2.5">
+                  <p className="text-sm text-neutral-700 font-mono break-all text-center">{qrData.menu_url}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 w-full">
+                <a href={`data:image/png;base64,${qrData.qr_base64}`} download="qrcode-cardapio.png"
+                  className="btn-primary flex-1 text-center">
+                  Baixar PNG
+                </a>
+                <button onClick={() => setConfirm("regenerate")} className="btn-ghost flex-1">
+                  Regenerar
+                </button>
+                <button onClick={() => setConfirm("delete")} className="btn-danger px-4">
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!isLoading && !hasQR && (
-        <div className="bg-white rounded-2xl border border-blue-100 shadow-sm p-6">
-          <h3 className="font-semibold text-blue-900 mb-1">Nenhum QR Code gerado</h3>
-          <p className="text-sm text-blue-400 mb-4">Configure a URL base e gere o QR Code do cardápio.</p>
-          <div className="flex gap-2">
+        {!isLoading && !hasQR && (
+          <div className="card p-8 text-center">
+            <div className="w-20 h-20 rounded-3xl bg-neutral-100 mx-auto mb-4 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-brand-400">
+                <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" />
+                <path d="M14 14h2v2h-2z" /><path d="M18 14h3" /><path d="M14 18h2" /><path d="M18 18h3v3" /><path d="M20 21h1" />
+              </svg>
+            </div>
+            <h3 className="font-bold text-neutral-900 text-lg mb-1">Gerar QR Code</h3>
+            <p className="text-sm text-neutral-500 mb-6">Clientes escaneiam para acessar o cardápio digital</p>
+            <label className="field-label text-left">URL base</label>
             <input
-              className="border border-blue-200 rounded-xl px-4 py-2.5 text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="form-input mb-4"
               placeholder="https://menufacil.vercel.app"
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
             />
-            <button onClick={() => generate.mutate()} disabled={!baseUrl || generate.isPending}
-              className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-              {generate.isPending ? "Gerando..." : "Gerar"}
+            <button onClick={() => generate.mutate()} disabled={!baseUrl || generate.isPending} className="btn-primary w-full py-3">
+              {generate.isPending ? "Gerando..." : "Gerar QR Code"}
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </AdminLayout>
   );
 }

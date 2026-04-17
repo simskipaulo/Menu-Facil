@@ -100,7 +100,10 @@ export default function QRCodeScreen() {
           <View style={styles.qrImageWrap}>
             <Image source={{ uri: `data:image/png;base64,${qrData.qr_base64}` }} style={styles.qrImage} />
           </View>
-          <Text style={styles.url}>{qrData.menu_url}</Text>
+          <View style={styles.urlBox}>
+            <Text style={styles.urlLabel}>Link do cardápio</Text>
+            <Text style={styles.url}>{qrData.menu_url}</Text>
+          </View>
           <View style={styles.qrActions}>
             <TouchableOpacity style={styles.regenBtn} onPress={() => setConfirm("regenerate")}>
               <Text style={styles.regenBtnText}>Regenerar</Text>
@@ -144,7 +147,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     flexGrow: 1,
-    backgroundColor: "#eff6ff",
+    backgroundColor: "#f8fafc",
     alignItems: "center",
   },
   title: { fontSize: 22, fontWeight: "700", color: "#1e3a8a", textAlign: "center", marginBottom: 4 },
@@ -157,32 +160,41 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#bfdbfe",
-    shadowColor: "#2563eb",
-    shadowOpacity: 0.08,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
     gap: 12,
   },
   qrImageWrap: {
-    padding: 12,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 20,
     backgroundColor: "#eff6ff",
     borderWidth: 1,
-    borderColor: "#bfdbfe",
+    borderColor: "#dbeafe",
   },
-  qrImage: { width: 200, height: 200, borderRadius: 8 },
-  url: { fontSize: 11, color: "#93c5fd", textAlign: "center", fontFamily: "monospace" },
+  qrImage: { width: 220, height: 220, borderRadius: 8 },
+  urlBox: {
+    width: "100%",
+    backgroundColor: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 12,
+    padding: 12,
+  },
+  urlLabel: { fontSize: 10, fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 },
+  url: { fontSize: 12, color: "#475569", fontFamily: "monospace" },
   qrActions: { flexDirection: "row", gap: 10, width: "100%" },
   regenBtn: {
     flex: 1, borderWidth: 1.5, borderColor: "#2563eb",
-    borderRadius: 12, padding: 12, alignItems: "center",
+    borderRadius: 14, padding: 12, alignItems: "center",
   },
   regenBtnText: { color: "#2563eb", fontWeight: "600", fontSize: 14 },
   deleteBtn: {
     flex: 1, borderWidth: 1.5, borderColor: "#fca5a5",
-    borderRadius: 12, padding: 12, alignItems: "center",
+    borderRadius: 14, padding: 12, alignItems: "center",
   },
   deleteBtnText: { color: "#ef4444", fontWeight: "600", fontSize: 14 },
 
@@ -192,20 +204,20 @@ const styles = StyleSheet.create({
     padding: 20,
     width: "100%",
     borderWidth: 1,
-    borderColor: "#bfdbfe",
-    shadowColor: "#2563eb",
-    shadowOpacity: 0.08,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
-  generateTitle: { fontSize: 16, fontWeight: "700", color: "#1e3a8a", marginBottom: 4 },
-  generateHint: { fontSize: 13, color: "#60a5fa", marginBottom: 16 },
-  label: { fontSize: 12, fontWeight: "600", color: "#3b82f6", marginBottom: 6, textTransform: "uppercase" },
+  generateTitle: { fontSize: 16, fontWeight: "700", color: "#1e293b", marginBottom: 4 },
+  generateHint: { fontSize: 13, color: "#94a3b8", marginBottom: 16 },
+  label: { fontSize: 11, fontWeight: "700", color: "#94a3b8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 1 },
   input: {
-    backgroundColor: "#f0f9ff",
-    borderWidth: 1.5,
-    borderColor: "#bfdbfe",
+    backgroundColor: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
     borderRadius: 12,
     padding: 12,
     fontSize: 14,
@@ -213,7 +225,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   generateBtn: {
-    backgroundColor: "#2563eb", borderRadius: 12,
+    backgroundColor: "#2563eb", borderRadius: 14,
     padding: 14, alignItems: "center",
   },
   generateBtnDisabled: { opacity: 0.5 },
@@ -226,7 +238,7 @@ const styles = StyleSheet.create({
   modalBox: {
     backgroundColor: "#fff", borderRadius: 20,
     padding: 24, width: "82%", alignItems: "center",
-    shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 20, elevation: 10,
+    shadowColor: "#000", shadowOpacity: 0.25, shadowRadius: 24, elevation: 12,
   },
   modalIcon: { fontSize: 36, marginBottom: 12 },
   modalMessage: { fontSize: 14, color: "#334155", textAlign: "center", lineHeight: 20, marginBottom: 20 },

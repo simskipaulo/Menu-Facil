@@ -56,13 +56,14 @@ export default function AdminLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: "#60a5fa",
-        tabBarInactiveTintColor: "#6b8ab8",
-        tabBarStyle: { backgroundColor: "#1e3a8a", borderTopColor: "#1d4ed8", borderTopWidth: 1 },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+        tabBarInactiveTintColor: "#4a6490",
+        tabBarStyle: { backgroundColor: "#172554", borderTopColor: "#1e3a8a", borderTopWidth: 1 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "600", letterSpacing: 0.3 },
         headerShown: true,
         headerStyle: { backgroundColor: "#1e3a8a" },
         headerTintColor: "#fff",
-        headerTitleStyle: { fontWeight: "700", color: "#fff" },
+        headerTitleStyle: { fontWeight: "700", color: "#fff", fontSize: 17, letterSpacing: -0.3 },
+        headerShadowVisible: true,
         headerRight: () => <LogoutButton />,
       }}
     >
@@ -71,7 +72,7 @@ export default function AdminLayout() {
         options={{
           title: "Cardápio",
           tabBarLabel: "Cardápio",
-          tabBarIcon: ({ color, size }) => <Ionicons name="restaurant-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => <Ionicons name={focused ? "restaurant" : "restaurant-outline"} color={color} size={focused ? size : size - 1} />,
         }}
       />
       <Tabs.Screen
@@ -79,7 +80,7 @@ export default function AdminLayout() {
         options={{
           title: "Categorias",
           tabBarLabel: "Categorias",
-          tabBarIcon: ({ color, size }) => <Ionicons name="list-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => <Ionicons name={focused ? "list" : "list-outline"} color={color} size={focused ? size : size - 1} />,
         }}
       />
       <Tabs.Screen
@@ -87,7 +88,7 @@ export default function AdminLayout() {
         options={{
           title: "QR Code",
           tabBarLabel: "QR Code",
-          tabBarIcon: ({ color, size }) => <Ionicons name="qr-code-outline" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => <Ionicons name={focused ? "qr-code" : "qr-code-outline"} color={color} size={focused ? size : size - 1} />,
         }}
       />
       <Tabs.Screen name="menu-items/[id]" options={{ href: null }} />

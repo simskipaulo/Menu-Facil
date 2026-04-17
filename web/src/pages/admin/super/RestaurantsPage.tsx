@@ -54,20 +54,18 @@ function EditRestaurantModal({ tenant, onClose }: { tenant: Tenant; onClose: () 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-blue-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
           <div>
-            <h3 className="font-bold text-blue-900 text-lg">{tenant.name}</h3>
-            <p className="text-xs text-blue-400">Editar restaurante</p>
+            <h3 className="font-bold text-neutral-900 text-lg">{tenant.name}</h3>
+            <p className="text-xs text-neutral-400">Editar restaurante</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600 text-xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100">✕</button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-blue-50 px-6">
+        <div className="flex border-b border-neutral-100 px-6">
           {(["info", "admins"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)}
-              className={`py-3 px-4 text-sm font-semibold border-b-2 transition-colors ${tab === t ? "border-blue-600 text-blue-600" : "border-transparent text-gray-400 hover:text-gray-600"}`}>
+              className={`py-3 px-4 text-sm font-semibold border-b-2 transition-colors ${tab === t ? "border-brand-600 text-brand-600" : "border-transparent text-neutral-400 hover:text-neutral-600"}`}>
               {t === "info" ? "Informações" : "Admins"}
             </button>
           ))}
@@ -77,25 +75,22 @@ function EditRestaurantModal({ tenant, onClose }: { tenant: Tenant; onClose: () 
           {tab === "info" && (
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide block mb-1.5">Nome do Restaurante</label>
-                <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+                <label className="field-label">Nome do Restaurante</label>
+                <input className="form-input" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
               </div>
               <div>
-                <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide block mb-1.5">Horário de Funcionamento</label>
-                <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  placeholder="Ex: Seg–Sex 18h–23h" value={form.opening_hours} onChange={(e) => setForm((f) => ({ ...f, opening_hours: e.target.value }))} />
+                <label className="field-label">Horário de Funcionamento</label>
+                <input className="form-input" placeholder="Ex: Seg–Sex 18h–23h" value={form.opening_hours} onChange={(e) => setForm((f) => ({ ...f, opening_hours: e.target.value }))} />
               </div>
               <div>
-                <label className="text-xs font-semibold text-blue-500 uppercase tracking-wide block mb-1.5">Cor Principal</label>
+                <label className="field-label">Cor Principal</label>
                 <div className="flex items-center gap-3">
                   <input type="color" value={form.primary_color} onChange={(e) => setForm((f) => ({ ...f, primary_color: e.target.value }))}
-                    className="w-10 h-10 rounded-lg cursor-pointer border border-blue-200" />
-                  <span className="text-sm text-gray-500 font-mono">{form.primary_color}</span>
+                    className="w-10 h-10 rounded-lg cursor-pointer border border-neutral-200" />
+                  <span className="text-sm text-neutral-500 font-mono">{form.primary_color}</span>
                 </div>
               </div>
-              <button onClick={() => updateTenant.mutate()} disabled={!form.name || updateTenant.isPending}
-                className="w-full bg-blue-600 text-white rounded-xl py-3 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors mt-2">
+              <button onClick={() => updateTenant.mutate()} disabled={!form.name || updateTenant.isPending} className="btn-primary w-full py-3 mt-2">
                 {updateTenant.isPending ? "Salvando..." : "Salvar alterações"}
               </button>
             </div>
@@ -104,45 +99,30 @@ function EditRestaurantModal({ tenant, onClose }: { tenant: Tenant; onClose: () 
           {tab === "admins" && (
             <div className="space-y-3">
               {users.map((u) => (
-                <div key={u.id} className="border border-blue-100 rounded-xl p-4 bg-blue-50/40">
+                <div key={u.id} className="border border-neutral-200 rounded-xl p-4 bg-neutral-50">
                   {editingUser?.id === u.id ? (
                     <div className="space-y-2">
-                      <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide mb-2">Editando admin</p>
-                      <input className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                        placeholder={`Email atual: ${u.email}`}
-                        value={editingUser.form.email}
+                      <p className="field-label mb-2">Editando admin</p>
+                      <input className="form-input" placeholder={`Email atual: ${u.email}`} value={editingUser.form.email}
                         onChange={(e) => setEditingUser((ev) => ev && ({ ...ev, form: { ...ev.form, email: e.target.value } }))} />
-                      <input type="password" className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                        placeholder="Nova senha (deixe em branco para manter)"
-                        value={editingUser.form.password}
+                      <input type="password" className="form-input" placeholder="Nova senha (deixe em branco para manter)" value={editingUser.form.password}
                         onChange={(e) => setEditingUser((ev) => ev && ({ ...ev, form: { ...ev.form, password: e.target.value } }))} />
                       <div className="flex gap-2 pt-1">
-                        <button onClick={() => updateUser.mutate({ id: u.id, data: editingUser.form })}
-                          disabled={updateUser.isPending}
-                          className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                          Salvar
-                        </button>
-                        <button onClick={() => setEditingUser(null)}
-                          className="flex-1 border border-blue-200 text-blue-600 rounded-lg py-2 text-sm font-semibold hover:bg-blue-50 transition-colors">
-                          Cancelar
-                        </button>
+                        <button onClick={() => updateUser.mutate({ id: u.id, data: editingUser.form })} disabled={updateUser.isPending} className="btn-primary flex-1">Salvar</button>
+                        <button onClick={() => setEditingUser(null)} className="btn-ghost flex-1">Cancelar</button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-blue-900">{u.email}</p>
-                        <p className="text-xs text-blue-400 mt-0.5">Admin do restaurante</p>
+                        <p className="text-sm font-semibold text-neutral-800">{u.email}</p>
+                        <p className="text-xs text-neutral-400 mt-0.5">Admin do restaurante</p>
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => setEditingUser({ id: u.id, form: { email: u.email, password: "" } })}
-                          className="text-xs text-blue-600 font-semibold hover:text-blue-800 transition-colors px-2 py-1 rounded-lg hover:bg-blue-100">
-                          Editar
-                        </button>
+                          className="text-xs text-brand-600 font-semibold hover:bg-brand-50 px-2.5 py-1.5 rounded-lg transition-colors">Editar</button>
                         <button onClick={() => { if (confirm(`Revogar acesso de ${u.email}?`)) revokeUser.mutate(u.id); }}
-                          className="text-xs text-red-500 font-semibold hover:text-red-700 transition-colors px-2 py-1 rounded-lg hover:bg-red-50">
-                          Revogar
-                        </button>
+                          className="text-xs text-danger-500 font-semibold hover:bg-danger-50 px-2.5 py-1.5 rounded-lg transition-colors">Revogar</button>
                       </div>
                     </div>
                   )}
@@ -150,30 +130,22 @@ function EditRestaurantModal({ tenant, onClose }: { tenant: Tenant; onClose: () 
               ))}
 
               {users.length === 0 && !addAdmin && (
-                <p className="text-center text-blue-300 text-sm py-6">Nenhum admin cadastrado</p>
+                <p className="text-center text-neutral-400 text-sm py-6">Nenhum admin cadastrado</p>
               )}
 
               {addAdmin ? (
-                <div className="border border-blue-200 rounded-xl p-4 space-y-2 bg-blue-50/40">
-                  <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide mb-2">Novo Admin</p>
-                  <input type="email" className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    placeholder="Email" value={newAdmin.email} onChange={(e) => setNewAdmin((f) => ({ ...f, email: e.target.value }))} />
-                  <input type="password" className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                    placeholder="Senha" value={newAdmin.password} onChange={(e) => setNewAdmin((f) => ({ ...f, password: e.target.value }))} />
+                <div className="border border-neutral-200 rounded-xl p-4 space-y-2 bg-neutral-50">
+                  <p className="field-label mb-2">Novo Admin</p>
+                  <input type="email" className="form-input" placeholder="Email" value={newAdmin.email} onChange={(e) => setNewAdmin((f) => ({ ...f, email: e.target.value }))} />
+                  <input type="password" className="form-input" placeholder="Senha" value={newAdmin.password} onChange={(e) => setNewAdmin((f) => ({ ...f, password: e.target.value }))} />
                   <div className="flex gap-2 pt-1">
-                    <button onClick={() => createAdmin.mutate()} disabled={!newAdmin.email || !newAdmin.password || createAdmin.isPending}
-                      className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                      Criar
-                    </button>
-                    <button onClick={() => setAddAdmin(false)}
-                      className="flex-1 border border-blue-200 text-blue-600 rounded-lg py-2 text-sm font-semibold hover:bg-blue-50 transition-colors">
-                      Cancelar
-                    </button>
+                    <button onClick={() => createAdmin.mutate()} disabled={!newAdmin.email || !newAdmin.password || createAdmin.isPending} className="btn-primary flex-1">Criar</button>
+                    <button onClick={() => setAddAdmin(false)} className="btn-ghost flex-1">Cancelar</button>
                   </div>
                 </div>
               ) : (
                 <button onClick={() => setAddAdmin(true)}
-                  className="w-full border-2 border-dashed border-blue-200 text-blue-500 rounded-xl py-3 text-sm font-semibold hover:border-blue-400 hover:text-blue-700 transition-colors">
+                  className="w-full border-2 border-dashed border-neutral-200 text-neutral-500 rounded-xl py-3 text-sm font-semibold hover:border-brand-400 hover:text-brand-600 transition-colors">
                   + Adicionar Admin
                 </button>
               )}
@@ -197,6 +169,9 @@ export default function RestaurantsPage() {
     queryFn: () => api.get("/tenants/").then((r) => r.data),
   });
 
+  const active = tenants.filter((t) => t.is_active).length;
+  const inactive = tenants.length - active;
+
   const create = useMutation({
     mutationFn: () => api.post("/tenants/", { ...form, opening_hours: form.opening_hours || null }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["tenants"] }); setForm(emptyTenant); setShowForm(false); },
@@ -218,71 +193,89 @@ export default function RestaurantsPage() {
 
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-blue-900">Restaurantes</h2>
-          <p className="text-blue-500 text-sm mt-1">{tenants.length} restaurante{tenants.length !== 1 ? "s" : ""} cadastrado{tenants.length !== 1 ? "s" : ""}</p>
+          <h2 className="page-title">Restaurantes</h2>
+          <p className="text-neutral-500 text-sm mt-0.5">{tenants.length} restaurante{tenants.length !== 1 ? "s" : ""} cadastrado{tenants.length !== 1 ? "s" : ""}</p>
         </div>
-        <button onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm">
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary">
           {showForm ? "Cancelar" : "+ Novo Restaurante"}
         </button>
       </div>
 
-      {showForm && (
-        <div className="bg-white border border-blue-100 rounded-2xl p-5 mb-5 shadow-sm space-y-3">
-          <h3 className="font-semibold text-blue-900 text-sm uppercase tracking-wide">Novo Restaurante</h3>
-          <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder="Nome do restaurante" value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: autoSlug(e.target.value) }))} />
-          <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder="Slug (URL)" value={form.slug}
-            onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
-          <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder="Horário (ex: Seg–Sex 18h–23h)" value={form.opening_hours}
-            onChange={(e) => setForm((f) => ({ ...f, opening_hours: e.target.value }))} />
-          <div className="flex items-center gap-3">
-            <label className="text-sm text-blue-600 font-medium">Cor principal</label>
-            <input type="color" value={form.primary_color} onChange={(e) => setForm((f) => ({ ...f, primary_color: e.target.value }))}
-              className="w-9 h-9 rounded-lg cursor-pointer border border-blue-200" />
+      {/* Stat cards */}
+      {tenants.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="stat-card">
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">Total</p>
+            <p className="text-3xl font-bold text-neutral-900">{tenants.length}</p>
           </div>
-          <div className="flex gap-2 pt-1">
-            <button onClick={() => create.mutate()} disabled={!form.name || !form.slug || create.isPending}
-              className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-              Criar
-            </button>
-            <button onClick={() => setShowForm(false)}
-              className="border border-blue-200 text-blue-600 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
-              Cancelar
-            </button>
+          <div className="stat-card">
+            <p className="text-xs font-semibold text-success-600 uppercase tracking-wider mb-1">Ativos</p>
+            <p className="text-3xl font-bold text-success-600">{active}</p>
+          </div>
+          <div className="stat-card">
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">Inativos</p>
+            <p className="text-3xl font-bold text-neutral-500">{inactive}</p>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
-        {tenants.map((t) => (
-          <div key={t.id} className="bg-white border border-blue-100 rounded-xl px-4 py-3 flex justify-between items-center shadow-sm hover:border-blue-200 transition-colors">
+      {showForm && (
+        <div className="card p-5 mb-5 border-l-4 border-brand-600">
+          <h3 className="font-bold text-neutral-900 mb-4">Novo Restaurante</h3>
+          <div className="space-y-3">
+            <input className="form-input" placeholder="Nome do restaurante" value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value, slug: autoSlug(e.target.value) }))} />
+            <input className="form-input" placeholder="Slug (URL)" value={form.slug}
+              onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
+            <input className="form-input" placeholder="Horário (ex: Seg–Sex 18h–23h)" value={form.opening_hours}
+              onChange={(e) => setForm((f) => ({ ...f, opening_hours: e.target.value }))} />
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: t.primary_color }} />
-              <p className="font-semibold text-blue-900 text-sm">{t.name}</p>
+              <label className="field-label mb-0">Cor principal</label>
+              <input type="color" value={form.primary_color} onChange={(e) => setForm((f) => ({ ...f, primary_color: e.target.value }))}
+                className="w-9 h-9 rounded-lg cursor-pointer border border-neutral-200" />
+              <span className="text-sm text-neutral-500 font-mono">{form.primary_color}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${t.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                {t.is_active ? "Ativo" : "Inativo"}
-              </span>
-              <button onClick={() => setEditingTenant(t)}
-                className="text-xs text-blue-600 font-semibold hover:text-blue-800 px-2.5 py-1 rounded-lg hover:bg-blue-50 transition-colors">
-                Editar
-              </button>
-              <button onClick={() => toggleActive.mutate({ id: t.id, is_active: !t.is_active })}
-                className={`text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors ${t.is_active ? "text-red-500 hover:bg-red-50" : "text-green-600 hover:bg-green-50"}`}>
-                {t.is_active ? "Desativar" : "Ativar"}
-              </button>
+            <div className="flex gap-2 pt-1">
+              <button onClick={() => create.mutate()} disabled={!form.name || !form.slug || create.isPending} className="btn-primary">Criar</button>
+              <button onClick={() => setShowForm(false)} className="btn-ghost">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {tenants.map((t) => (
+          <div key={t.id} className="card p-5 hover:shadow-card-hover transition-shadow">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl flex-shrink-0 border border-neutral-100" style={{ background: t.primary_color }} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-bold text-neutral-900">{t.name}</p>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${t.is_active ? "bg-success-50 text-success-700" : "bg-neutral-100 text-neutral-500"}`}>
+                    {t.is_active ? "Ativo" : "Inativo"}
+                  </span>
+                </div>
+                {t.opening_hours && <p className="text-xs text-neutral-500 mt-1">{t.opening_hours}</p>}
+              </div>
+              <div className="flex flex-col gap-1.5 items-end">
+                <button onClick={() => setEditingTenant(t)} className="text-sm text-brand-600 font-semibold hover:bg-brand-50 px-3 py-1.5 rounded-lg transition-colors">
+                  Editar
+                </button>
+                <button onClick={() => toggleActive.mutate({ id: t.id, is_active: !t.is_active })}
+                  className={`text-xs font-semibold px-3 py-1 rounded-lg transition-colors ${t.is_active ? "text-danger-500 hover:bg-danger-50" : "text-success-600 hover:bg-success-50"}`}>
+                  {t.is_active ? "Desativar" : "Ativar"}
+                </button>
+              </div>
             </div>
           </div>
         ))}
         {tenants.length === 0 && (
-          <div className="text-center py-16 text-blue-300">
-            <p className="text-5xl mb-3">🏪</p>
-            <p className="text-sm">Nenhum restaurante cadastrado</p>
+          <div className="col-span-2 card text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">🏪</span>
+            </div>
+            <p className="font-semibold text-neutral-700">Nenhum restaurante cadastrado</p>
+            <p className="text-sm text-neutral-400 mt-1">Crie o primeiro restaurante para começar</p>
           </div>
         )}
       </div>
@@ -290,22 +283,12 @@ export default function RestaurantsPage() {
       {adminForm.tenantId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-3 shadow-xl">
-            <h3 className="font-bold text-blue-900">Criar Admin do Restaurante</h3>
-            <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="Email" type="email" value={adminForm.email}
-              onChange={(e) => setAdminForm((f) => ({ ...f, email: e.target.value }))} />
-            <input className="w-full border border-blue-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="Senha" type="password" value={adminForm.password}
-              onChange={(e) => setAdminForm((f) => ({ ...f, password: e.target.value }))} />
+            <h3 className="font-bold text-neutral-900">Criar Admin do Restaurante</h3>
+            <input className="form-input" placeholder="Email" type="email" value={adminForm.email} onChange={(e) => setAdminForm((f) => ({ ...f, email: e.target.value }))} />
+            <input className="form-input" placeholder="Senha" type="password" value={adminForm.password} onChange={(e) => setAdminForm((f) => ({ ...f, password: e.target.value }))} />
             <div className="flex gap-2">
-              <button onClick={() => createAdmin.mutate()} disabled={!adminForm.email || !adminForm.password || createAdmin.isPending}
-                className="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                Criar
-              </button>
-              <button onClick={() => setAdminForm(emptyAdmin)}
-                className="flex-1 border border-blue-200 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-blue-50 transition-colors">
-                Cancelar
-              </button>
+              <button onClick={() => createAdmin.mutate()} disabled={!adminForm.email || !adminForm.password || createAdmin.isPending} className="btn-primary flex-1">Criar</button>
+              <button onClick={() => setAdminForm(emptyAdmin)} className="btn-ghost flex-1">Cancelar</button>
             </div>
           </div>
         </div>
