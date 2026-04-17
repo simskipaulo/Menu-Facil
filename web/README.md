@@ -1,73 +1,89 @@
-# React + TypeScript + Vite
+# Web — Menu Fácil
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend web construído com **React 18 + Vite + TypeScript + TailwindCSS**.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 18 + TypeScript
+- Vite (bundler)
+- TailwindCSS 3 (estilização)
+- React Router v6 (roteamento)
+- React Query v5 / TanStack Query (cache de dados)
+- Axios (cliente HTTP)
 
-## React Compiler
+## Estrutura
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+web/src/
+├── api/
+│   └── client.ts            # Axios com interceptor de auth
+├── components/
+│   ├── layouts/
+│   │   └── AdminLayout.tsx  # Nav top com links por perfil
+│   └── menu/
+│       ├── CategoryChips.tsx
+│       ├── TagBadge.tsx
+│       └── MenuItemCard.tsx
+├── hooks/
+│   └── useAuth.ts           # Estado de auth + login/logout
+├── pages/
+│   ├── auth/LoginPage.tsx
+│   ├── public/MenuPage.tsx  # Cardápio do cliente (sem auth)
+│   └── admin/
+│       ├── DashboardPage.tsx
+│       ├── MenuItemsPage.tsx
+│       ├── CategoriesPage.tsx
+│       ├── TagsPage.tsx
+│       ├── QRCodePage.tsx
+│       └── super/RestaurantsPage.tsx
+└── types/api.ts             # Interfaces TypeScript
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Configuração
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+cp .env.example .env
 ```
+
+`.env`:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+## Executar
+
+```bash
+npm run dev
+# http://localhost:5173
+```
+
+## Rotas
+
+| Rota | Acesso |
+|------|--------|
+| `/login` | Público |
+| `/menu/:slug` | Público — cardápio do cliente |
+| `/admin/menu-items` | Admin do restaurante |
+| `/admin/categories` | Admin do restaurante |
+| `/admin/tags` | Admin do restaurante |
+| `/admin/qrcode` | Admin do restaurante |
+| `/admin/restaurants` | Super Admin |
+
+## Build
+
+```bash
+npm run build
+# Saída em dist/
+```
+
+## Deploy (Vercel)
+
+```bash
+npm install -g vercel
+vercel
+# Configure VITE_API_URL no dashboard do Vercel
+```
+
+O `vercel.json` já está configurado com rewrite para SPA.
