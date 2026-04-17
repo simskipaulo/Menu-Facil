@@ -1,5 +1,5 @@
 from decimal import Decimal
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from app.schemas.tag import TagOut
 
 
@@ -37,5 +37,4 @@ class MenuItemOut(BaseModel):
     tenant_id: int
     tags: list[TagOut]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
