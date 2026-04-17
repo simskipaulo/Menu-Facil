@@ -1,15 +1,9 @@
 import { useState } from "react";
 import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
+  View, Text, Image, TouchableOpacity, TextInput,
+  StyleSheet, ScrollView, ActivityIndicator, Modal, RefreshControl,
 } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_URL } from "../../constants/api";
 import { authHeaders } from "../../utils/auth";
@@ -17,9 +11,31 @@ import { authHeaders } from "../../utils/auth";
 interface AuthUser { id: number; tenant_id: number | null; }
 interface QRData { qr_base64: string; menu_url: string; }
 
+function ConfirmModal({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <Modal visible transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalBox}>
+          <Text style={styles.modalIcon}>⚠️</Text>
+          <Text style={styles.modalMessage}>{message}</Text>
+          <View style={styles.modalBtns}>
+            <TouchableOpacity style={styles.modalCancel} onPress={onCancel}>
+              <Text style={styles.modalCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalConfirm} onPress={onConfirm}>
+              <Text style={styles.modalConfirmText}>Confirmar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function QRCodeScreen() {
+  const qc = useQueryClient();
   const [baseUrl, setBaseUrl] = useState("https://menufacil.vercel.app");
-  const [generate, setGenerate] = useState(false);
+  const [confirm, setConfirm] = useState<"regenerate" | "delete" | null>(null);
 
   const { data: user } = useQuery<AuthUser>({
     queryKey: ["mobile-me"],
@@ -29,53 +45,95 @@ export default function QRCodeScreen() {
     },
   });
 
-  const { data: qrData, isFetching } = useQuery<QRData>({
-    queryKey: ["mobile-qr", user?.tenant_id, baseUrl, generate],
+  const { data: qrData, isLoading, isError, refetch, isFetching } = useQuery<QRData>({
+    queryKey: ["mobile-qr", user?.tenant_id],
     queryFn: async () => {
       const headers = await authHeaders();
-      return axios
-        .get(
-          `${API_URL}/tenants/${user!.tenant_id}/qrcode?base_url=${encodeURIComponent(baseUrl)}`,
-          { headers }
-        )
-        .then((r) => r.data);
+      return axios.get(`${API_URL}/tenants/${user!.tenant_id}/qrcode`, { headers }).then((r) => r.data);
     },
-    enabled: !!user?.tenant_id && generate,
+    enabled: !!user?.tenant_id,
+    retry: false,
   });
 
+  const generate = useMutation({
+    mutationFn: async () => {
+      const headers = await authHeaders();
+      return axios.post(`${API_URL}/tenants/${user!.tenant_id}/qrcode`, { base_url: baseUrl }, { headers });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["mobile-qr", user?.tenant_id] }),
+  });
+
+  const remove = useMutation({
+    mutationFn: async () => {
+      const headers = await authHeaders();
+      return axios.delete(`${API_URL}/tenants/${user!.tenant_id}/qrcode`, { headers });
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["mobile-qr", user?.tenant_id] }),
+  });
+
+  const hasQR = !!qrData && !isError;
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor="#60a5fa" colors={["#2563eb"]} />}>
+      {confirm === "regenerate" && (
+        <ConfirmModal
+          message="Tem certeza que deseja gerar um novo QR Code? O atual será substituído."
+          onCancel={() => setConfirm(null)}
+          onConfirm={() => { setConfirm(null); generate.mutate(); }}
+        />
+      )}
+      {confirm === "delete" && (
+        <ConfirmModal
+          message="Tem certeza que deseja remover o QR Code? Os clientes não conseguirão mais escanear."
+          onCancel={() => setConfirm(null)}
+          onConfirm={() => { setConfirm(null); remove.mutate(); }}
+        />
+      )}
+
       <Text style={styles.title}>QR Code do Cardápio</Text>
-      <Text style={styles.hint}>
-        Clientes escaneiam este QR code para ver o cardápio no navegador.
-      </Text>
+      <Text style={styles.hint}>Clientes escaneiam para acessar o cardápio digital</Text>
 
-      <Text style={styles.label}>URL base</Text>
-      <TextInput
-        style={styles.input}
-        value={baseUrl}
-        onChangeText={(v) => { setBaseUrl(v); setGenerate(false); }}
-        placeholder="https://menufacil.vercel.app"
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+      {isLoading && <ActivityIndicator color="#2563eb" style={{ marginTop: 40 }} />}
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setGenerate(true)}
-      >
-        <Text style={styles.buttonText}>Gerar QR Code</Text>
-      </TouchableOpacity>
-
-      {isFetching && <ActivityIndicator color="#2563eb" style={{ marginTop: 24 }} />}
-
-      {qrData && !isFetching && (
-        <View style={styles.qrContainer}>
-          <Image
-            source={{ uri: `data:image/png;base64,${qrData.qr_base64}` }}
-            style={styles.qrImage}
-          />
+      {!isLoading && hasQR && (
+        <View style={styles.qrCard}>
+          <View style={styles.qrImageWrap}>
+            <Image source={{ uri: `data:image/png;base64,${qrData.qr_base64}` }} style={styles.qrImage} />
+          </View>
           <Text style={styles.url}>{qrData.menu_url}</Text>
+          <View style={styles.qrActions}>
+            <TouchableOpacity style={styles.regenBtn} onPress={() => setConfirm("regenerate")}>
+              <Text style={styles.regenBtnText}>Regenerar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteBtn} onPress={() => setConfirm("delete")}>
+              <Text style={styles.deleteBtnText}>Remover</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {!isLoading && !hasQR && (
+        <View style={styles.generateCard}>
+          <Text style={styles.generateTitle}>Nenhum QR Code gerado</Text>
+          <Text style={styles.generateHint}>Configure a URL base e gere o QR Code.</Text>
+          <Text style={styles.label}>URL base</Text>
+          <TextInput
+            style={styles.input}
+            value={baseUrl}
+            onChangeText={setBaseUrl}
+            placeholder="https://menufacil.vercel.app"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            style={[styles.generateBtn, (!baseUrl || generate.isPending) && styles.generateBtnDisabled]}
+            onPress={() => generate.mutate()}
+            disabled={!baseUrl || generate.isPending}
+          >
+            {generate.isPending
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.generateBtnText}>Gerar QR Code</Text>}
+          </TouchableOpacity>
         </View>
       )}
     </ScrollView>
@@ -84,58 +142,103 @@ export default function QRCodeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
-    backgroundColor: "#f9fafb",
+    padding: 20,
     flexGrow: 1,
+    backgroundColor: "#eff6ff",
     alignItems: "center",
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 6,
-    textAlign: "center",
-  },
-  hint: {
-    fontSize: 13,
-    color: "#64748b",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  label: {
-    alignSelf: "flex-start",
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 6,
-  },
-  input: {
-    width: "100%",
+  title: { fontSize: 22, fontWeight: "700", color: "#1e3a8a", textAlign: "center", marginBottom: 4 },
+  hint: { fontSize: 13, color: "#60a5fa", textAlign: "center", marginBottom: 24 },
+
+  qrCard: {
     backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    width: "100%",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 10,
+    borderColor: "#bfdbfe",
+    shadowColor: "#2563eb",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    gap: 12,
+  },
+  qrImageWrap: {
+    padding: 12,
+    borderRadius: 16,
+    backgroundColor: "#eff6ff",
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
+  },
+  qrImage: { width: 200, height: 200, borderRadius: 8 },
+  url: { fontSize: 11, color: "#93c5fd", textAlign: "center", fontFamily: "monospace" },
+  qrActions: { flexDirection: "row", gap: 10, width: "100%" },
+  regenBtn: {
+    flex: 1, borderWidth: 1.5, borderColor: "#2563eb",
+    borderRadius: 12, padding: 12, alignItems: "center",
+  },
+  regenBtnText: { color: "#2563eb", fontWeight: "600", fontSize: 14 },
+  deleteBtn: {
+    flex: 1, borderWidth: 1.5, borderColor: "#fca5a5",
+    borderRadius: 12, padding: 12, alignItems: "center",
+  },
+  deleteBtnText: { color: "#ef4444", fontWeight: "600", fontSize: 14 },
+
+  generateCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
+    shadowColor: "#2563eb",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  generateTitle: { fontSize: 16, fontWeight: "700", color: "#1e3a8a", marginBottom: 4 },
+  generateHint: { fontSize: 13, color: "#60a5fa", marginBottom: 16 },
+  label: { fontSize: 12, fontWeight: "600", color: "#3b82f6", marginBottom: 6, textTransform: "uppercase" },
+  input: {
+    backgroundColor: "#f0f9ff",
+    borderWidth: 1.5,
+    borderColor: "#bfdbfe",
+    borderRadius: 12,
     padding: 12,
     fontSize: 14,
     color: "#1e293b",
     marginBottom: 12,
   },
-  button: {
-    backgroundColor: "#2563eb",
-    borderRadius: 10,
-    padding: 14,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 20,
+  generateBtn: {
+    backgroundColor: "#2563eb", borderRadius: 12,
+    padding: 14, alignItems: "center",
   },
-  buttonText: { color: "#fff", fontWeight: "600", fontSize: 15 },
-  qrContainer: { alignItems: "center", gap: 12 },
-  qrImage: {
-    width: 220,
-    height: 220,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+  generateBtnDisabled: { opacity: 0.5 },
+  generateBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+
+  modalOverlay: {
+    flex: 1, backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center", alignItems: "center",
   },
-  url: { color: "#64748b", fontSize: 12, textAlign: "center" },
+  modalBox: {
+    backgroundColor: "#fff", borderRadius: 20,
+    padding: 24, width: "82%", alignItems: "center",
+    shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 20, elevation: 10,
+  },
+  modalIcon: { fontSize: 36, marginBottom: 12 },
+  modalMessage: { fontSize: 14, color: "#334155", textAlign: "center", lineHeight: 20, marginBottom: 20 },
+  modalBtns: { flexDirection: "row", gap: 10, width: "100%" },
+  modalCancel: {
+    flex: 1, borderWidth: 1, borderColor: "#e2e8f0",
+    borderRadius: 12, padding: 12, alignItems: "center",
+  },
+  modalCancelText: { color: "#64748b", fontWeight: "600" },
+  modalConfirm: {
+    flex: 1, backgroundColor: "#ef4444",
+    borderRadius: 12, padding: 12, alignItems: "center",
+  },
+  modalConfirmText: { color: "#fff", fontWeight: "700" },
 });

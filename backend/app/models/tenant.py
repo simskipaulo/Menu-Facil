@@ -11,3 +11,4 @@ class Tenant(Base):
     primary_color = Column(String(7), default="#e63946")
     opening_hours = Column(String(200))
     is_active = Column(Boolean, default=True)
+    qr_base_url = Column(String(500), nullable=True)

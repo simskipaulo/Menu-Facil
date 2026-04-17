@@ -1,13 +1,7 @@
 import { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, Alert, KeyboardAvoidingView, Platform, Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -28,11 +22,12 @@ export default function LoginScreen() {
       await login(email, password);
       router.replace("/(admin)/menu-items");
     } catch (err: any) {
-      const msg = err?.code === "ECONNABORTED" || err?.message?.includes("timeout")
-        ? "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
-        : err?.response?.status === 401
-        ? "Email ou senha incorretos"
-        : "Erro de conexão. Verifique o IP do servidor no .env";
+      const msg =
+        err?.code === "ECONNABORTED" || err?.message?.includes("timeout")
+          ? "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
+          : err?.response?.status === 401
+          ? "Email ou senha incorretos"
+          : "Erro de conexão. Verifique o IP do servidor no .env";
       Alert.alert("Erro", msg);
     } finally {
       setLoading(false);
@@ -44,35 +39,38 @@ export default function LoginScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.card}>
+      <View style={styles.logoArea}>
+        <View style={styles.logoIcon}>
+          <Image source={require("../../assets/icon.png")} style={styles.logoImg} resizeMode="cover" />
+        </View>
         <Text style={styles.title}>Menu Fácil</Text>
-        <Text style={styles.subtitle}>Painel Admin</Text>
+        <Text style={styles.subtitle}>Painel de administração</Text>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>EMAIL</Text>
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder="seu@email.com"
+          placeholderTextColor="#93c5fd"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
         />
+        <Text style={styles.label}>SENHA</Text>
         <View style={styles.passwordRow}>
           <TextInput
             style={styles.passwordInput}
-            placeholder="Senha"
+            placeholder="••••••••"
+            placeholderTextColor="#93c5fd"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
           />
-          <TouchableOpacity
-            style={styles.eyeBtn}
-            onPress={() => setShowPassword((v) => !v)}
-          >
-            <Ionicons
-              name={showPassword ? "eye" : "eye-off"}
-              size={20}
-              color="#94a3b8"
-            />
+          <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword((v) => !v)}>
+            <Ionicons name={showPassword ? "eye" : "eye-off"} size={20} color="#60a5fa" />
           </TouchableOpacity>
         </View>
         <TouchableOpacity
@@ -92,66 +90,53 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 24,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#1e3a8a",
   },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 24,
+  logoArea: { alignItems: "center", marginBottom: 32 },
+  logoIcon: {
+    width: 80, height: 80, borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    marginBottom: 12,
+    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#1e293b",
-    marginBottom: 4,
+  logoImg: { width: "100%", height: "100%", opacity: 0.9 },
+  title: { fontSize: 30, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
+  subtitle: { fontSize: 13, color: "#93c5fd", marginTop: 4 },
+
+  card: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
   },
-  subtitle: {
-    fontSize: 14,
-    textAlign: "center",
-    color: "#64748b",
-    marginBottom: 28,
+  label: {
+    fontSize: 10, fontWeight: "700", color: "#93c5fd",
+    letterSpacing: 1.5, marginBottom: 6,
   },
   input: {
-    backgroundColor: "#f8fafc",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 15,
-    marginBottom: 12,
-    color: "#1e293b",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
+    borderRadius: 12, padding: 14, fontSize: 15,
+    marginBottom: 16, color: "#fff",
   },
   passwordRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f8fafc",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 10,
-    marginBottom: 12,
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.2)",
+    borderRadius: 12, marginBottom: 20,
   },
-  passwordInput: {
-    flex: 1,
-    padding: 14,
-    fontSize: 15,
-    color: "#1e293b",
-  },
-  eyeBtn: {
-    padding: 12,
-  },
+  passwordInput: { flex: 1, padding: 14, fontSize: 15, color: "#fff" },
+  eyeBtn: { padding: 12 },
   button: {
-    backgroundColor: "#2563eb",
-    borderRadius: 10,
-    padding: 16,
-    alignItems: "center",
-    marginTop: 8,
+    backgroundColor: "#fff", borderRadius: 12,
+    padding: 16, alignItems: "center",
   },
   buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+  buttonText: { color: "#1e3a8a", fontWeight: "800", fontSize: 16 },
 });

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   Modal,
+  RefreshControl,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -28,7 +29,7 @@ export default function CategoriesScreen() {
   const [emoji, setEmoji] = useState("");
   const [showPicker, setShowPicker] = useState(false);
 
-  const { data: categories = [] } = useQuery<Category[]>({
+  const { data: categories = [], refetch, isFetching } = useQuery<Category[]>({
     queryKey: ["mobile-categories"],
     queryFn: async () => {
       const headers = await authHeaders();
@@ -87,6 +88,7 @@ export default function CategoriesScreen() {
         data={categories}
         keyExtractor={(c) => String(c.id)}
         contentContainerStyle={{ paddingBottom: 20 }}
+        refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor="#2563eb" colors={["#2563eb"]} />}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.categoryName}>
@@ -143,7 +145,7 @@ export default function CategoriesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f9fafb", padding: 16 },
+  container: { flex: 1, backgroundColor: "#eff6ff", padding: 16 },
   form: { flexDirection: "row", gap: 8, marginBottom: 16 },
   input: {
     backgroundColor: "#fff",
@@ -175,16 +177,21 @@ const styles = StyleSheet.create({
   addBtnText: { color: "#fff", fontSize: 24, fontWeight: "300" },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 14,
     marginBottom: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#bfdbfe",
+    shadowColor: "#2563eb",
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
-  categoryName: { fontWeight: "500", fontSize: 15, color: "#1e293b" },
+  categoryName: { fontWeight: "600", fontSize: 15, color: "#1e3a8a" },
   removeBtn: { color: "#ef4444", fontSize: 13, fontWeight: "500" },
   empty: { textAlign: "center", color: "#94a3b8", marginTop: 40, fontSize: 14 },
   modalOverlay: {

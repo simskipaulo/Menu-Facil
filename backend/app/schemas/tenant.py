@@ -25,6 +25,7 @@ class TenantOut(BaseModel):
     primary_color: str
     opening_hours: str | None
     is_active: bool
+    qr_base_url: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
