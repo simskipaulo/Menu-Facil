@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Modal,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -15,10 +16,17 @@ import { authHeaders } from "../../../utils/auth";
 
 interface Category { id: number; name: string; emoji: string | null; order: number; }
 
+const EMOJIS = [
+  "🍕","🍔","🌮","🍣","🍜","🍗","🥩","🥗","🍰","🍩",
+  "🥤","🍺","☕","🧃","🍷","🍹","🥪","🌯","🍱","🍛",
+  "🦐","🐟","🥚","🧆","🥞","🫕","🍲","🥘","🫔","🧁",
+];
+
 export default function CategoriesScreen() {
   const qc = useQueryClient();
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["mobile-categories"],
@@ -63,12 +71,9 @@ export default function CategoriesScreen() {
           value={name}
           onChangeText={setName}
         />
-        <TextInput
-          style={[styles.input, styles.emojiInput]}
-          placeholder="🍕"
-          value={emoji}
-          onChangeText={setEmoji}
-        />
+        <TouchableOpacity style={styles.emojiBtn} onPress={() => setShowPicker(true)}>
+          <Text style={styles.emojiBtnText}>{emoji || "😀"}</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.addBtn, !name && styles.addBtnDisabled]}
           onPress={() => create.mutate()}
@@ -107,6 +112,32 @@ export default function CategoriesScreen() {
           <Text style={styles.empty}>Nenhuma categoria cadastrada.</Text>
         }
       />
+
+      <Modal visible={showPicker} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowPicker(false)}
+        >
+          <View style={styles.pickerSheet}>
+            <Text style={styles.pickerTitle}>Escolha um emoji</Text>
+            <View style={styles.emojiGrid}>
+              {EMOJIS.map((e) => (
+                <TouchableOpacity
+                  key={e}
+                  style={[styles.emojiOption, emoji === e && styles.emojiOptionSelected]}
+                  onPress={() => { setEmoji(e); setShowPicker(false); }}
+                >
+                  <Text style={styles.emojiOptionText}>{e}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TouchableOpacity style={styles.clearBtn} onPress={() => { setEmoji(""); setShowPicker(false); }}>
+              <Text style={styles.clearBtnText}>Sem emoji</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -123,7 +154,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#1e293b",
   },
-  emojiInput: { width: 52, textAlign: "center" },
+  emojiBtn: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 10,
+    width: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emojiBtnText: { fontSize: 22 },
   addBtn: {
     backgroundColor: "#2563eb",
     borderRadius: 10,
@@ -147,4 +187,49 @@ const styles = StyleSheet.create({
   categoryName: { fontWeight: "500", fontSize: 15, color: "#1e293b" },
   removeBtn: { color: "#ef4444", fontSize: 13, fontWeight: "500" },
   empty: { textAlign: "center", color: "#94a3b8", marginTop: 40, fontSize: 14 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "flex-end",
+  },
+  pickerSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 36,
+  },
+  pickerTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1e293b",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  emojiGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 8,
+  },
+  emojiOption: {
+    width: 48,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    backgroundColor: "#f1f5f9",
+  },
+  emojiOptionSelected: {
+    backgroundColor: "#dbeafe",
+    borderWidth: 2,
+    borderColor: "#2563eb",
+  },
+  emojiOptionText: { fontSize: 26 },
+  clearBtn: {
+    marginTop: 16,
+    alignItems: "center",
+    padding: 10,
+  },
+  clearBtnText: { color: "#94a3b8", fontSize: 14 },
 });

@@ -27,8 +27,13 @@ export default function LoginScreen() {
     try {
       await login(email, password);
       router.replace("/(admin)/menu-items");
-    } catch {
-      Alert.alert("Erro", "Email ou senha incorretos");
+    } catch (err: any) {
+      const msg = err?.code === "ECONNABORTED" || err?.message?.includes("timeout")
+        ? "Não foi possível conectar ao servidor. Verifique se o backend está rodando."
+        : err?.response?.status === 401
+        ? "Email ou senha incorretos"
+        : "Erro de conexão. Verifique o IP do servidor no .env";
+      Alert.alert("Erro", msg);
     } finally {
       setLoading(false);
     }

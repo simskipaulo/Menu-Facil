@@ -33,7 +33,7 @@ export function useAuth() {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+    const { data } = await axios.post(`${API_URL}/auth/login`, { email, password }, { timeout: 8000 });
     await SecureStore.setItemAsync("token", data.access_token);
     setToken(data.access_token);
     const me = await axios.get(`${API_URL}/auth/me`, {
